@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💌 Una carta para ti</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;700&family=Caveat:wght@400;600;700&family=Lora:ital,wght@1,400&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --paper: #fdf8f0;
+  --paper-dark: #f5edd8;
+  --ink: #2a1a10;
+  --rose: #c45c72;
+  --rose-pale: #f2c4cd;
+  --bamboo: #6a9e52;
+  --gold: #b8862a;
+  --cream: #e8dcc8;
+  --ice: #d8eef8;
+  --penguin: #1a1a2e;
+  --stone: #9a9a8a;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  min-height: 100vh;
+  background: #e2d5c3;
+  background-image:
+    radial-gradient(ellipse at 15% 10%, #d8c8b0 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 90%, #ccc0a8 0%, transparent 55%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4rem 1rem 8rem;
+  font-family: 'Caveat', cursive;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Grain */
+body::after {
+  content:'';
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:0.035;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+  z-index:999;
+}
+
+/* ── FLOATING HEARTS ── */
+.heart-float {
+  position:fixed;
+  pointer-events:none;
+  z-index:100;
+  font-size:1.2rem;
+  animation: heartRise 3s ease-out forwards;
+  opacity:0;
+}
+@keyframes heartRise {
+  0%   { opacity:1; transform:translateY(0) scale(1) rotate(var(--r)); }
+  100% { opacity:0; transform:translateY(-200px) scale(0.4) rotate(calc(var(--r) + 30deg)); }
+}
+
+/* ── ENVELOPE SECTION ── */
+.envelope-section {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:0.8rem;
+  margin-bottom:2.5rem;
+  position:relative;
+  z-index:10;
+}
+
+.envelope-wrap {
+  animation: envFloat 3.5s ease-in-out infinite;
+  cursor:pointer;
+  position:relative;
+}
+@keyframes envFloat {
+  0%,100%{transform:translateY(0) rotate(-1.5deg);}
+  50%{transform:translateY(-14px) rotate(1.5deg);}
+}
+
+.tap-hint {
+  font-size:1rem;
+  color:var(--rose);
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  animation:blink 2s ease-in-out infinite;
+}
+@keyframes blink{0%,100%{opacity:0.4}50%{opacity:1}}
+
+/* ── LETTER ── */
+.letter-outer {
+  max-width:660px;
+  width:100%;
+  position:relative;
+  z-index:5;
+  opacity:0;
+  transform:translateY(50px) scale(0.95);
+  transition: opacity 1s cubic-bezier(.34,1.2,.64,1), transform 1s cubic-bezier(.34,1.2,.64,1);
+}
+.letter-outer.open {
+  opacity:1;
+  transform:translateY(0) scale(1);
+}
+
+/* Wax seal */
+.seal {
+  position:absolute;
+  top:-28px;
+  left:50%;
+  transform:translateX(-50%) scale(0);
+  width:60px; height:60px;
+  background:radial-gradient(circle at 38% 32%, #d44060, #8c1a30);
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.6rem;
+  box-shadow:0 5px 18px rgba(140,26,48,0.45), inset 0 -3px 6px rgba(0,0,0,0.25);
+  z-index:20;
+  transition: transform 0.6s cubic-bezier(.36,.07,.19,.97) 0.1s;
+}
+.letter-outer.open .seal { transform:translateX(-50%) scale(1); }
+
+/* Paper body */
+.paper {
+  background:var(--paper);
+  border-radius:3px;
+  padding:4rem 3.2rem 3rem;
+  position:relative;
+  box-shadow:
+    0 2px 0 #e0d0b0,
+    0 4px 0 #d5c8a8,
+    0 6px 0 #c8baa0,
+    0 25px 70px rgba(42,26,16,0.22),
+    inset 0 0 100px rgba(200,160,60,0.04);
+  overflow:hidden;
+}
+
+/* Ruled lines */
+.paper::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  top:4rem;
+  background-image:repeating-linear-gradient(
+    transparent, transparent 33px,
+    rgba(160,130,100,0.12) 33px, rgba(160,130,100,0.12) 34px
+  );
+  pointer-events:none;
+}
+
+/* Pink margin */
+.paper::after {
+  content:'';
+  position:absolute;
+  left:4.8rem;
+  top:0; bottom:0;
+  width:1.5px;
+  background:rgba(196,92,114,0.18);
+  pointer-events:none;
+}
+
+/* Torn top edge */
+.torn {
+  position:absolute;
+  top:0; left:0; right:0;
+  height:12px;
+  background:var(--paper);
+  clip-path:polygon(0%100%,1.5%15%,3%85%,4.5%5%,6%70%,7.5%35%,9%90%,10.5%10%,12%75%,13.5%30%,15%88%,16.5%8%,18%65%,19.5%25%,21%85%,22.5%5%,24%72%,25.5%28%,27%92%,28.5%12%,30%78%,31.5%32%,33%88%,34.5%8%,36%68%,37.5%22%,39%82%,40.5%15%,42%75%,43.5%35%,45%95%,46.5%5%,48%72%,49.5%28%,51%88%,52.5%12%,54%78%,55.5%32%,57%90%,58.5%8%,60%68%,61.5%25%,63%85%,64.5%10%,66%72%,67.5%30%,69%90%,70.5%5%,72%75%,73.5%35%,75%92%,76.5%15%,78%80%,79.5%25%,81%85%,82.5%8%,84%70%,85.5%30%,87%88%,88.5%10%,90%75%,91.5%28%,93%90%,94.5%12%,96%78%,97.5%32%,99%88%,100%20%,100%100%);
+}
+
+/* Tape strips */
+.tape {
+  position:absolute;
+  background:rgba(255,235,150,0.5);
+  border:1px solid rgba(200,180,80,0.25);
+  border-radius:2px;
+}
+.tape-l { width:75px; height:22px; top:22px; left:-18px; transform:rotate(-9deg); }
+.tape-r { width:65px; height:20px; top:26px; right:-14px; transform:rotate(7deg); }
+.tape-b { width:80px; height:20px; bottom:30px; left:50%; transform:translateX(-50%) rotate(-2deg); }
+
+/* ── TEXT STYLES ── */
+.date-line {
+  font-size:0.9rem;
+  color:rgba(42,26,16,0.4);
+  text-align:right;
+  margin-bottom:1.8rem;
+  letter-spacing:0.06em;
+}
+
+.saludo {
+  font-family:'Dancing Script', cursive;
+  font-size:2.6rem;
+  font-weight:700;
+  color:var(--rose);
+  margin-bottom:1.4rem;
+  line-height:1.1;
+}
+
+.parrafo {
+  font-family:'Caveat', cursive;
+  font-size:1.22rem;
+  color:var(--ink);
+  line-height:2;
+  margin-bottom:1.1rem;
+}
+.parrafo em { color:var(--rose); font-style:italic; }
+.parrafo strong { font-weight:700; color:var(--bamboo); }
+
+.firma-wrap {
+  text-align:right;
+  margin-top:1.8rem;
+}
+.firma-sub {
+  font-size:0.9rem;
+  color:rgba(42,26,16,0.4);
+  margin-bottom:0.3rem;
+}
+.firma {
+  font-family:'Dancing Script', cursive;
+  font-size:2.2rem;
+  font-weight:700;
+  color:var(--ink);
+}
+
+/* ── PANDA MARGIN DOODLE ── */
+.panda-doodle {
+  position:absolute;
+  left:0.5rem;
+  animation:doodleBob 2.8s ease-in-out infinite;
+}
+@keyframes doodleBob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(2deg)}}
+
+/* ── PHOTO STRIP ── */
+.photo-strip {
+  display:flex;
+  gap:1rem;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin:1.8rem 0 0.5rem;
+}
+.polaroid {
+  background:white;
+  padding:0.55rem 0.55rem 1.8rem;
+  box-shadow:2px 4px 14px rgba(42,26,16,0.2);
+  cursor:pointer;
+  transition:transform 0.35s cubic-bezier(.34,1.56,.64,1);
+  position:relative;
+}
+.polaroid:nth-child(1){transform:rotate(-5deg);}
+.polaroid:nth-child(2){transform:rotate(2deg);}
+.polaroid:nth-child(3){transform:rotate(-3deg);}
+.polaroid:hover{transform:scale(1.1) rotate(0deg) !important; z-index:10;}
+.pol-label {
+  position:absolute;
+  bottom:0.35rem;
+  left:0; right:0;
+  text-align:center;
+  font-size:0.78rem;
+  color:#999;
+  font-family:'Caveat', cursive;
+}
+
+/* ── DIVIDER ── */
+.divider {
+  display:flex;
+  align-items:center;
+  gap:0.7rem;
+  margin:1.5rem 0;
+  color:rgba(42,26,16,0.25);
+  font-size:0.85rem;
+  letter-spacing:0.2em;
+}
+.divider::before,.divider::after {
+  content:'';
+  flex:1;
+  height:1px;
+  background:rgba(42,26,16,0.15);
+}
+
+/* ── DEDICATION CARD ── */
+.dedication-section {
+  max-width:660px;
+  width:100%;
+  margin-top:2rem;
+  position:relative;
+  z-index:5;
+}
+
+.dedication-paper {
+  background:var(--ice);
+  background:linear-gradient(160deg,#ddeef8 0%,#c8e4f4 100%);
+  border-radius:6px;
+  padding:3rem 3rem 5rem;
+  position:relative;
+  box-shadow:
+    0 2px 0 #b8d8ee,
+    0 4px 0 #a8ccde,
+    0 20px 60px rgba(42,26,16,0.18);
+  overflow:hidden;
+}
+
+/* Ice texture */
+.dedication-paper::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background-image:
+    radial-gradient(ellipse at 20% 80%, rgba(255,255,255,0.35) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(255,255,255,0.25) 0%, transparent 50%);
+  pointer-events:none;
+}
+
+.ded-title {
+  font-family:'Dancing Script', cursive;
+  font-size:2rem;
+  font-weight:700;
+  color:#1a4060;
+  text-align:center;
+  margin-bottom:1.5rem;
+  position:relative;
+  z-index:2;
+}
+
+.ded-text {
+  font-family:'Caveat', cursive;
+  font-size:1.3rem;
+  color:#1a3050;
+  line-height:1.9;
+  text-align:center;
+  position:relative;
+  z-index:2;
+  margin-bottom:1rem;
+}
+.ded-text em { color:#c45c72; font-style:italic; }
+
+/* Snow/ice floor */
+.ice-floor {
+  position:absolute;
+  bottom:0; left:0; right:0;
+  height:55px;
+  background:linear-gradient(180deg, transparent, rgba(255,255,255,0.6));
+  border-radius:0 0 6px 6px;
+}
+
+/* Snowflakes in dedication */
+.snowflake {
+  position:absolute;
+  color:rgba(255,255,255,0.7);
+  font-size:1rem;
+  pointer-events:none;
+  animation:snowDrift var(--sd) linear infinite;
+  top:-20px;
+}
+@keyframes snowDrift {
+  to { transform:translateY(340px) rotate(360deg); opacity:0; }
+}
+
+/* ── PENGUIN WALK ANIMATION ── */
+.penguin-stage {
+  position:absolute;
+  bottom:0; left:0; right:0;
+  height:70px;
+  overflow:hidden;
+}
+
+.baby-penguin-wrap {
+  position:absolute;
+  bottom:8px;
+  left:-100px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  animation: penguinWalk 5s 1.2s ease-in-out forwards;
+}
+@keyframes penguinWalk {
+  0%   { left:-100px; }
+  60%  { left:calc(50% - 50px); }
+  70%  { left:calc(50% - 50px); }
+  100% { left:calc(50% - 50px); }
+}
+
+.baby-penguin-svg {
+  animation: babyWaddle 0.5s ease-in-out infinite;
+}
+@keyframes babyWaddle {
+  0%,100%{ transform:rotate(-8deg) translateY(0); }
+  50%   { transform:rotate(8deg) translateY(-3px); }
+}
+
+/* Stone drop */
+.stone {
+  position:absolute;
+  bottom:-30px;
+  left:50%;
+  transform:translateX(-50%);
+  font-size:1.4rem;
+  animation:stoneDrop 0.5s 6.2s cubic-bezier(.34,1.56,.64,1) forwards;
+  opacity:0;
+}
+@keyframes stoneDrop {
+  from { bottom:-30px; opacity:0; transform:translateX(-50%) scale(0.5); }
+  to   { bottom:6px;  opacity:1; transform:translateX(-50%) scale(1); }
+}
+
+/* Stone sparkles */
+.sparkle {
+  position:absolute;
+  bottom:14px;
+  font-size:0.8rem;
+  opacity:0;
+  animation:sparkleAnim 1s var(--sd) ease-out forwards;
+}
+@keyframes sparkleAnim {
+  0%  { opacity:0; transform:scale(0) translate(0,0); }
+  50% { opacity:1; }
+  100%{ opacity:0; transform:scale(1) translate(var(--tx),var(--ty)); }
+}
+.sp1{ left:calc(50% - 30px); --sd:6.3s; --tx:-20px; --ty:-18px; }
+.sp2{ left:calc(50% + 10px); --sd:6.4s; --tx:18px; --ty:-22px; }
+.sp3{ left:calc(50% - 10px); --sd:6.5s; --tx:0px;  --ty:-28px; }
+
+/* Heart that appears after stone */
+.penguin-heart {
+  position:absolute;
+  bottom:38px;
+  left:50%;
+  transform:translateX(-50%) scale(0);
+  font-size:1.5rem;
+  animation:heartPop 0.5s 6.8s cubic-bezier(.36,.07,.19,.97) forwards;
+}
+@keyframes heartPop {
+  0%  { transform:translateX(-50%) scale(0); opacity:0; }
+  70% { transform:translateX(-50%) scale(1.3); opacity:1; }
+  100%{ transform:translateX(-50%) scale(1); opacity:1; }
+}
+
+/* ── STICKER HEARTS scattered ── */
+.sticker {
+  position:absolute;
+  font-size:1.1rem;
+  opacity:0.55;
+  pointer-events:none;
+  animation:stickerWiggle var(--sw) ease-in-out infinite alternate;
+}
+@keyframes stickerWiggle{from{transform:rotate(var(--ra))}to{transform:rotate(var(--rb))}}
+
+</style>
+</head>
+<body>
+
+<!-- ══════════ ENVELOPE ══════════ -->
+<section class="envelope-section">
+  <div class="envelope-wrap" id="envWrap" onclick="openLetter()">
+    <svg class="envelope" width="240" height="160" viewBox="0 0 240 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Shadow -->
+      <ellipse cx="120" cy="158" rx="100" ry="8" fill="rgba(0,0,0,0.12)"/>
+      <!-- Body -->
+      <rect x="4" y="30" width="232" height="126" rx="6" fill="#fdf0e0" stroke="#ddc89a" stroke-width="1.5"/>
+      <!-- Back flap (closed) -->
+      <path d="M4 30 L120 100 L236 30" fill="#f5e4c0" stroke="#ddc89a" stroke-width="1.5"/>
+      <!-- Side triangles for depth -->
+      <path d="M4 30 L4 156 L120 90Z" fill="#f0dab8"/>
+      <path d="M236 30 L236 156 L120 90Z" fill="#ead4b0"/>
+      <!-- Bottom triangle -->
+      <path d="M4 156 L120 90 L236 156Z" fill="#fdf0e0"/>
+      <!-- Rose sticker on flap -->
+      <circle cx="120" cy="68" r="14" fill="#c45c72"/>
+      <text x="120" y="74" text-anchor="middle" font-size="14">🐼</text>
+      <!-- Little hearts -->
+      <text x="40" y="130" font-size="11" opacity="0.4">♡</text>
+      <text x="190" y="120" font-size="10" opacity="0.35">♡</text>
+      <text x="70" y="145" font-size="9" opacity="0.3">♡</text>
+    </svg>
+  </div>
+  <p class="tap-hint">✦ toca para abrir ✦</p>
+</section>
+
+<!-- ══════════ LETTER ══════════ -->
+<div class="letter-outer" id="letterOuter">
+  <div class="seal">🐼</div>
+  <div class="tape tape-l"></div>
+  <div class="tape tape-r"></div>
+
+  <!-- Scattered stickers on paper edges -->
+  <div class="sticker" style="top:80px;right:-18px;--sw:3s;--ra:-12deg;--rb:8deg;">🎋</div>
+  <div class="sticker" style="top:200px;left:-14px;--sw:2.5s;--ra:5deg;--rb:-10deg;">♡</div>
+  <div class="sticker" style="top:360px;right:-16px;--sw:4s;--ra:-8deg;--rb:12deg;">🐧</div>
+  <div class="sticker" style="bottom:160px;left:-12px;--sw:3.5s;--ra:10deg;--rb:-6deg;">🌿</div>
+
+  <div class="paper">
+    <div class="torn"></div>
+
+    <!-- Panda doodle in margin -->
+    <div class="panda-doodle" style="top:3.5rem;">
+      <svg width="38" height="42" viewBox="0 0 38 42" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="10" cy="10" rx="9" ry="9" fill="#222"/>
+        <ellipse cx="28" cy="10" rx="9" ry="9" fill="#222"/>
+        <ellipse cx="10" cy="10" rx="6" ry="6" fill="#444"/>
+        <ellipse cx="28" cy="10" rx="6" ry="6" fill="#444"/>
+        <ellipse cx="19" cy="24" rx="16" ry="15" fill="#fdf8f0"/>
+        <ellipse cx="13" cy="20" rx="6.5" ry="6.5" fill="#222"/>
+        <ellipse cx="25" cy="20" rx="6.5" ry="6.5" fill="#222"/>
+        <circle cx="13" cy="20" r="3.5" fill="white"/>
+        <circle cx="25" cy="20" r="3.5" fill="white"/>
+        <circle cx="14" cy="19" r="2" fill="#111"/>
+        <circle cx="26" cy="19" r="2" fill="#111"/>
+        <circle cx="15" cy="18" r="0.8" fill="white"/>
+        <circle cx="27" cy="18" r="0.8" fill="white"/>
+        <ellipse cx="19" cy="28" rx="4" ry="3" fill="#f0a0b4"/>
+        <path d="M14 33 Q19 38 24 33" stroke="#222" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      </svg>
+    </div>
+
+    <p class="date-line">Marzo, 2026 ♡</p>
+
+    <h1 class="saludo">Para ti, mi amor...</h1>
+
+    <p class="parrafo">
+      Si yo fuera un panda, pasaría cada día buscando el bambú más especial del bosque solo para traértelo. No el primero que encuentre — el <em>perfecto</em>. El que tiene la hoja más suave, el tallo más verde, la forma más bonita. Porque eso es lo que tú mereces: <em>lo más especial de todo</em>.
+    </p>
+
+    <p class="parrafo">
+      Los pandas duermen hasta 16 horas al día... y aun así yo preferiría quedarme despierto contigo. Cualquier momento a tu lado vale más que todos mis sueños juntos.
+    </p>
+
+    <!-- Photo strip -->
+    <div class="photo-strip">
+<div class="polaroid" style="transform:rotate(-3deg);">
+  <img src="img2.png" width="100" height="130" style="display:block;object-fit:cover;">
+  <span class="pol-label">nosotros 🤍</span>
+</div>
+        <span class="pol-label">nosotros 🎋</span>
+      </div>
+
+      <!-- Polaroid 2: penguin with heart stone -->
+      <div class="polaroid p2">
+        <svg width="100" height="90" viewBox="0 0 100 90" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100" height="90" fill="#ddeef8"/>
+          <!-- Penguin -->
+          <ellipse cx="50" cy="60" rx="24" ry="28" fill="#1a1a2e"/>
+          <ellipse cx="50" cy="62" rx="15" ry="20" fill="white"/>
+          <ellipse cx="50" cy="28" rx="20" ry="20" fill="#1a1a2e"/>
+          <ellipse cx="50" cy="31" rx="12" ry="13" fill="white"/>
+          <circle cx="43" cy="23" r="5" fill="white"/><circle cx="44" cy="22" r="3" fill="#1a1a2e"/>
+          <circle cx="57" cy="23" r="5" fill="white"/><circle cx="58" cy="22" r="3" fill="#1a1a2e"/>
+          <circle cx="44" cy="21" r="1.2" fill="white"/>
+          <circle cx="58" cy="21" r="1.2" fill="white"/>
+          <polygon points="45,38 55,38 50,46" fill="#ff9800"/>
+          <!-- Wings out offering -->
+          <ellipse cx="28" cy="62" rx="10" ry="22" fill="#1a1a2e" transform="rotate(25 28 62)"/>
+          <ellipse cx="72" cy="62" rx="10" ry="22" fill="#1a1a2e" transform="rotate(-25 72 62)"/>
+          <!-- Heart stone on wing -->
+          <text x="50" y="90" text-anchor="middle" font-size="13">🪨</text>
+          <text x="50" y="78" text-anchor="middle" font-size="10">💗</text>
+        </svg>
+        <span class="pol-label">mi piedra 🪨</span>
+      </div>
+
+      <!-- Polaroid 3: panda sleeping with bamboo -->
+      <div class="polaroid p3">
+        <svg width="100" height="90" viewBox="0 0 100 90" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100" height="90" fill="#f5f0e8"/>
+          <!-- Bamboo bg -->
+          <rect x="15" y="0" width="8" height="90" rx="4" fill="#7bb661" opacity="0.3"/>
+          <rect x="75" y="0" width="8" height="90" rx="4" fill="#7bb661" opacity="0.3"/>
+          <!-- Sleeping panda on its back -->
+          <ellipse cx="50" cy="58" rx="34" ry="26" fill="#fdf8f0"/>
+          <!-- Legs up -->
+          <ellipse cx="28" cy="38" rx="14" ry="10" fill="#222" transform="rotate(-40 28 38)"/>
+          <ellipse cx="72" cy="38" rx="14" ry="10" fill="#222" transform="rotate(40 72 38)"/>
+          <!-- Ears -->
+          <ellipse cx="30" cy="52" rx="10" ry="10" fill="#222"/>
+          <ellipse cx="70" cy="52" rx="10" ry="10" fill="#222"/>
+          <!-- Face (upside down sleeping) -->
+          <ellipse cx="50" cy="58" rx="22" ry="20" fill="#fdf8f0"/>
+          <ellipse cx="39" cy="53" rx="8" ry="8" fill="#222"/>
+          <ellipse cx="61" cy="53" rx="8" ry="8" fill="#222"/>
+          <!-- Closed happy eyes -->
+          <path d="M35 53 Q39 49 43 53" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <path d="M57 53 Q61 49 65 53" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <ellipse cx="50" cy="63" rx="5" ry="3.5" fill="#f0a0b4"/>
+          <!-- Zzz -->
+          <text x="72" y="30" font-size="10" fill="#999" font-family="Caveat">z</text>
+          <text x="78" y="22" font-size="13" fill="#bbb" font-family="Caveat">z</text>
+          <text x="86" y="14" font-size="16" fill="#ddd" font-family="Caveat">z</text>
+        </svg>
+        <span class="pol-label">siesta de panda 💤</span>
+      </div>
+    </div>
+
+    <div class="divider">✦ ✦ ✦</div>
+
+    <!-- Second panda doodle in margin -->
+    <div class="panda-doodle" style="top:62%;width:34px;">
+      <svg width="34" height="38" viewBox="0 0 34 38" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="9" cy="9" rx="8" ry="8" fill="#222"/>
+        <ellipse cx="25" cy="9" rx="8" ry="8" fill="#222"/>
+        <ellipse cx="17" cy="22" rx="15" ry="14" fill="#fdf8f0"/>
+        <ellipse cx="11" cy="18" rx="6" ry="6" fill="#222"/>
+        <ellipse cx="23" cy="18" rx="6" ry="6" fill="#222"/>
+        <circle cx="11" cy="18" r="3" fill="white"/><circle cx="12" cy="17" r="1.8" fill="#111"/>
+        <circle cx="23" cy="18" r="3" fill="white"/><circle cx="24" cy="17" r="1.8" fill="#111"/>
+        <ellipse cx="17" cy="26" rx="3.5" ry="2.5" fill="#f0a0b4"/>
+        <path d="M12 31 Q17 36 22 31" stroke="#222" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <!-- Bamboo -->
+        <rect x="23" y="12" width="5" height="18" rx="2.5" fill="#6a9e52"/>
+        <line x1="23" y1="18" x2="28" y2="18" stroke="#4a7e32" stroke-width="1"/>
+      </svg>
+    </div>
+
+    <p class="parrafo">
+      Dicen que los pingüinos buscan durante horas <em>la piedra perfecta</em> para dársela a quien aman. No cualquier piedra — la más especial, la más bonita, la elegida solo para esa persona. Y yo sería ese pequeño pingüino. <strong>Buscando la piedra perfecta para entregartela a ti.
+    </p>
+
+    <p class="parrafo">
+      Pues bien: yo llevo tiempo buscando mi piedra perfecta. Y la encontré. Eres <em>tú</em>.
+    </p>
+
+    <p class="parrafo">
+      Como el panda que abraza su bambú favorito, <em>quiero abrazarte a ti</em>. Como el pingüino que camina hasta donde estás solo para entregarte algo bonito — así te llevo yo en el corazón, cada día, sin cansarme.
+    </p>
+
+    <div class="firma-wrap">
+      <p class="firma-sub">con todo el bambú del mundo,</p>
+      <p class="firma">tu panda latoso favorito 🐼 Fer♡ 🐼 </p>
+    </div>
+
+    <div class="tape tape-b"></div>
+  </div>
+</div>
+
+<!-- ══════════ DEDICATION ══════════ -->
+<div class="dedication-section" id="dedSection" style="opacity:0;transform:translateY(40px);transition:opacity 1s 0.3s ease,transform 1s 0.3s cubic-bezier(.34,1.2,.64,1);">
+  <div class="dedication-paper">
+
+    <!-- Snowflakes -->
+    <div class="snowflake" style="left:10%;--sd:6s;animation-delay:0s;">❄</div>
+    <div class="snowflake" style="left:25%;--sd:8s;animation-delay:1s;">❅</div>
+    <div class="snowflake" style="left:55%;--sd:5s;animation-delay:2s;">✦</div>
+    <div class="snowflake" style="left:75%;--sd:7s;animation-delay:0.5s;">❆</div>
+    <div class="snowflake" style="left:88%;--sd:9s;animation-delay:3s;">❄</div>
+    <div class="snowflake" style="left:40%;--sd:6.5s;animation-delay:1.5s;">·</div>
+
+    <h2 class="ded-title">Una piedra para ti</h2>
+
+    <p class="ded-text">
+      En el frío del mundo, entre millones de piedras iguales,<br>
+      un pequeño pingüino caminó y caminó<br>
+      hasta encontrar <em>la perfecta</em>.<br><br>
+      Quiero que te quedes conmigo siempre.<br>
+      <em>Para siempre.</em><br>
+      Así de sencillo, así de enorme.
+    </p>
+
+    <!-- Penguin walk stage -->
+    <div class="penguin-stage">
+
+      <div class="baby-penguin-wrap" id="babyPenguin">
+        <svg class="baby-penguin-svg" width="55" height="70" viewBox="0 0 55 70" xmlns="http://www.w3.org/2000/svg">
+          <!-- Body -->
+          <ellipse cx="27" cy="48" rx="18" ry="22" fill="#1a1a2e"/>
+          <ellipse cx="27" cy="50" rx="11" ry="16" fill="white"/>
+          <!-- Head -->
+          <ellipse cx="27" cy="22" rx="16" ry="16" fill="#1a1a2e"/>
+          <ellipse cx="27" cy="24" rx="10" ry="11" fill="white"/>
+          <!-- Eyes -->
+          <circle cx="21" cy="18" r="4.5" fill="white"/><circle cx="22" cy="17" r="2.5" fill="#1a1a2e"/><circle cx="23" cy="16" r="1" fill="white"/>
+          <circle cx="33" cy="18" r="4.5" fill="white"/><circle cx="34" cy="17" r="2.5" fill="#1a1a2e"/><circle cx="35" cy="16" r="1" fill="white"/>
+          <!-- Beak -->
+          <polygon points="22,30 32,30 27,37" fill="#ff9800"/>
+          <!-- Tiny scarf -->
+          <rect x="13" y="34" width="30" height="7" rx="3.5" fill="#c45c72"/>
+          <rect x="24" y="34" width="7" height="14" rx="3.5" fill="#c45c72"/>
+          <!-- Wings waddling -->
+          <ellipse cx="10" cy="50" rx="7" ry="15" fill="#1a1a2e" transform="rotate(15 10 50)">
+            <animateTransform attributeName="transform" type="rotate" values="15 10 50;-8 10 50;15 10 50" dur="0.5s" repeatCount="indefinite"/>
+          </ellipse>
+          <ellipse cx="44" cy="50" rx="7" ry="15" fill="#1a1a2e" transform="rotate(-15 44 50)">
+            <animateTransform attributeName="transform" type="rotate" values="-15 44 50;8 44 50;-15 44 50" dur="0.5s" repeatCount="indefinite"/>
+          </ellipse>
+          <!-- Feet -->
+          <ellipse cx="20" cy="68" rx="9" ry="4.5" fill="#ff9800"/>
+          <ellipse cx="34" cy="68" rx="9" ry="4.5" fill="#ff9800"/>
+          <!-- Holding stone -->
+          <circle cx="27" cy="62" r="0" fill="#9a9a8a">
+            <animate attributeName="r" values="0;0;0;0;0;0;0;5.5" keyTimes="0;0.1;0.2;0.3;0.4;0.5;0.6;1" dur="6s" repeatCount="1" fill="freeze" begin="1.2s"/>
+          </circle>
+        </svg>
+      </div>
+
+      <!-- Stone dropped -->
+      <div class="stone">🪨</div>
+
+      <!-- Sparkles around stone -->
+      <div class="sparkle sp1">✨</div>
+      <div class="sparkle sp2">⭐</div>
+      <div class="sparkle sp3">💫</div>
+
+      <!-- Heart appears -->
+      <div class="penguin-heart">💕</div>
+
+      <!-- Ice floor visual -->
+      <div class="ice-floor"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── OPEN LETTER ──
+let opened = false;
+function openLetter() {
+  if (opened) return;
+  opened = true;
+
+  document.getElementById('envWrap').style.animation = 'none';
+  document.getElementById('envWrap').style.transform = 'scale(0.85)';
+  document.getElementById('envWrap').style.opacity = '0.4';
+  document.getElementById('envWrap').style.transition = '0.5s';
+
+  const letter = document.getElementById('letterOuter');
+  letter.classList.add('open');
+
+  setTimeout(() => {
+    const ded = document.getElementById('dedSection');
+    ded.style.opacity = '1';
+    ded.style.transform = 'translateY(0)';
+  }, 600);
+
+  // burst hearts
+  burstHearts(12);
+}
+
+// ── HEART BURST ──
+function burstHearts(n) {
+  const env = document.getElementById('envWrap').getBoundingClientRect();
+  const cx = env.left + env.width/2;
+  const cy = env.top + env.height/2;
+  const symbols = ['💕','♡','🐼','💗','🎋','❤️'];
+  for (let i=0;i<n;i++) {
+    setTimeout(()=>{
+      const h = document.createElement('div');
+      h.className = 'heart-float';
+      h.textContent = symbols[Math.floor(Math.random()*symbols.length)];
+      h.style.left = (cx + (Math.random()-0.5)*120) + 'px';
+      h.style.top  = (cy + (Math.random()-0.5)*60) + 'px';
+      h.style.setProperty('--r', (Math.random()*30-15)+'deg');
+      h.style.fontSize = (0.8+Math.random()*1.2)+'rem';
+      document.body.appendChild(h);
+      setTimeout(()=>h.remove(), 3000);
+    }, i*80);
+  }
+}
+
+// ── CLICK HEARTS anywhere ──
+document.addEventListener('click', e => {
+  const syms = ['💕','♡','🐼','🐧','🎋','💗','❄','🪨'];
+  for (let i=0;i<4;i++){
+    const h = document.createElement('div');
+    h.className = 'heart-float';
+    h.textContent = syms[Math.floor(Math.random()*syms.length)];
+    h.style.left = (e.clientX + (Math.random()-0.5)*40)+'px';
+    h.style.top  = (e.clientY + (Math.random()-0.5)*30)+'px';
+    h.style.setProperty('--r', (Math.random()*40-20)+'deg');
+    h.style.fontSize = (0.7+Math.random())+'rem';
+    document.body.appendChild(h);
+    setTimeout(()=>h.remove(),3000);
+  }
+});
+</script>
+</body>
+</html>
